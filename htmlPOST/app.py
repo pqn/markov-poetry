@@ -1,7 +1,8 @@
-#################################################
 import nltk, re, random
 from collections import defaultdict, Counter
 from bisect import bisect
+from flask import Flask, render_template, request, url_for
+import time
 
 ACCEPTABLE_POS = frozenset(["NOUN", "ADJ", "ADV", "VERB"])
 VOWELS = frozenset("AA AE AH AO AW AY EH ER EY IH IY OW OY UH UW".split(" "))
@@ -89,12 +90,6 @@ def markov_poem(text):
     endings = ending_db(reasonable_ends)
     return "\n".join([punctuate(generate_line_pair(final_chain, endings, 10, second_words)) for x in range(5)])
 
-
-# We need to import request to access the details of the POST request
-# and render_template, to render our templates (form and response)
-# we'll use url_for to get some URLs for the app on the templates
-from flask import Flask, render_template, request, url_for
-import time
 # Initialize the Flask application
 app = Flask(__name__)
 app.debug = True
