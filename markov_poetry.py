@@ -6,7 +6,7 @@ from bisect import bisect
 
 ACCEPTABLE_POS = frozenset(["NOUN", "ADJ", "ADV", "VERB"])
 VOWELS = frozenset("AA AE AH AO AW AY EH ER EY IH IY OW OY UH UW".split(" "))
-syllable_db = nltk.corpus.cmudict.entries()
+syllable_db = {thing[0] : thing[1] for thing in nltk.corpus.cmudict.entries()}
 
 def triples(word_list):
     if len(word_list) < 3:
@@ -52,14 +52,15 @@ def generate(final_chain, num_words, word=None, second_words=None):
 
 def ending_db(reasonable_ends):
     syllable_lookup = defaultdict(set)
-    for entry in syllable_db:
-        if entry[0] in reasonable_ends:
-            if entry[1][-1][:2] in VOWELS and entry[1][-1][-1] in "012" and int(entry[1][-1][-1]) > 0:
-                syllable_lookup[entry[1][-1]].add(entry[0])
-            if len(entry[1]) >= 2 and entry[1][-2][:2] in VOWELS and entry[1][-2][-1] in "012" and int(entry[1][-2][-1]) > 0:
-                syllable_lookup[(entry[1][-2][:2], entry[1][-1][:2])].add(entry[0])
-            if len(entry[1]) >= 3 and entry[1][-3][:2] in VOWELS and entry[1][-3][-1] in "012" and int(entry[1][-3][-1]) > 0:
-                syllable_lookup[(entry[1][-3][:2], entry[1][-2][:2], entry[1][-1][:2])].add(entry[0])
+    for word in reasonable_ends:
+        if word in syllable_db:
+            entry = syllable_db[word]
+            if entry[-1][:2] in VOWELS and entry[-1][-1] in "012" and int(entry[-1][-1]) > 0:
+                syllable_lookup[entry[-1]].add(word)
+            if len(entry) >= 2 and entry[-2][:2] in VOWELS and entry[-2][-1] in "012" and int(entry[-2][-1]) > 0:
+                syllable_lookup[(entry[-2][:2], entry[-1][:2])].add(word)
+            if len(entry) >= 3 and entry[-3][:2] in VOWELS and entry[-3][-1] in "012" and int(entry[-3][-1]) > 0:
+                syllable_lookup[(entry[-3][:2], entry[-2][:2], entry[-1][:2])].add(word)
     return {key: syllable_lookup[key] for key in syllable_lookup.keys() if len(syllable_lookup[key]) >= 2}
 
 def generate_line_pair(final_chain, endings, num_words, second_words):
