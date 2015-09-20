@@ -89,6 +89,6 @@ def markov_poem(text):
     return "\n".join([punctuate(generate_line_pair(final_chain, endings, 10, second_words)) for x in range(5)])
 
 if __name__ == "__main__":
-    with open("moby_dick.txt") as f:
+    with open("amendments.txt") as f:
         text = f.read()
         print(markov_poem(text))
