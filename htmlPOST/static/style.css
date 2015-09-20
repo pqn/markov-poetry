@@ -104,3 +104,11 @@ form input[type=submit]{
     cursor: pointer;
     text-align: center;
 } 
+
+select {
+    font-size: 35px;
+}
+
+input {
+    font-size: 20px;
+}

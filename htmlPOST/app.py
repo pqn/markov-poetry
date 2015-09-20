@@ -103,17 +103,22 @@ def form():
 # accepting: POST requests in this case
 @app.route('/hello/', methods=['POST'])
 def hello():
-    name=request.form['yourname']
-    email=request.form['youremail']
     # Get dropdown value
     txtName=request.form['txt']
     # 
     if txtName == '0':
         file = open("amendments.txt")
-        txtName = file.read()
-        #time.sleep(10)
-        txtName = markov_poem(txtName)
-    return render_template('form_action.html', name=name, email=email, txtName=txtName)
+    if txtName == '1':
+        file = open("moby_dick.txt")
+    if txtName == '2':
+        file = open("aesop.txt")
+    if txtName == '3':
+        file = open("beatles.txt")
+    if txtName == '4':
+        file = open("bible.txt")
+    txtName = file.read()
+    txtName = markov_poem(txtName)
+    return render_template('form_action.html', txtName=txtName)
 
 # Run the app :)
 if __name__ == '__main__':

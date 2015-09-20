@@ -5,21 +5,16 @@
     </head>
     <body>
         <div id="container">
-            <div class="title">
-                <h1>POST request with Flask</h1>
-            </div>
-            <div id="content">
+            <div id="content" style="align:center">
                 <form method="post" action="{{ url_for('hello') }}">
-                  <label for="yourname">Please enter your name:</label>
-                  <input type="text" name="yourname" /><br />
-                  <label for="youremail">Please enter your email:</label>
-                  <input type="text" name="youremail" /><br />
                   <select type="text" name="txt">
                         <option value="0">Amendments</option>
-                        <option value="1">Moby's Dick</option>
+                        <option value="1">Moby Dick</option>
                         <option value="2">Aesop</option>
+                        <option value="3">The Beatles</option>
+                        <option value="4">The Bible</option>
                   </select>
-                  <input type="submit" />
+                  <input style="float:right;" type="submit" />
                 </form>
             </div>
     </body>
