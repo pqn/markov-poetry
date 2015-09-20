@@ -4,6 +4,9 @@ from collections import defaultdict, Counter
 import random
 from bisect import bisect
 
+ACCEPTABLE_POS = frozenset(["NOUN", "ADJ", "ADV", "VERB"])
+VOWELS = frozenset("AA AE AH AO AW AY EH ER EY IH IY OW OY UH UW".split(" "))
+
 def triples(word_list):
     if len(word_list) < 3:
         return
@@ -41,10 +44,28 @@ def generate(final_chain, num_words):
         seed.append(weighted_rand_choice(final_chain.get((seed[-2], seed[-1]), random.choice(list(final_chain.values())))))
     return seed
 
-with open("test.txt") as f:
+def ending_db(reasonable_ends):
+    syllable_db = nltk.corpus.cmudict.entries()
+    syllable_lookup = defaultdict(set)
+    for entry in syllable_db:
+        if entry[0] in reasonable_ends:
+            if entry[1][-1][:2] in VOWELS and entry[1][-1][-1] in "012" and int(entry[1][-1][-1]) > 0:
+                syllable_lookup[entry[1][-1]].add(entry[0])
+            if len(entry[1]) >= 2 and entry[1][-2][:2] in VOWELS and entry[1][-2][-1] in "012" and int(entry[1][-2][-1]) > 0:
+                syllable_lookup[(entry[1][-2][:2], entry[1][-1][:2])].add(entry[0])
+            if len(entry[1]) >= 3 and entry[1][-3][:2] in VOWELS and entry[1][-3][-1] in "012" and int(entry[1][-3][-1]) > 0:
+                syllable_lookup[(entry[1][-3][:2], entry[1][-2][:2], entry[1][-1][:2])].add(entry[0])
+    return {key: syllable_lookup[key] for key in syllable_lookup.keys() if len(syllable_lookup[key]) >= 2}
+
+def generate_line_pair(final_chain, num_words):
+    pass # TODO
+
+with open("moby_dick.txt") as f:
     text = f.read()
     words = [x.lower() for x in getWords(text)]
+    reasonable_ends = frozenset([thing[0] for thing in nltk.pos_tag(list(set(words)), tagset="universal") if thing[1] in ACCEPTABLE_POS])
     words.reverse()
     result = generate(finalize_markov(markov(triples(words))), 100)
     result.reverse()
-    print(result)
+    #print(result)
+    print(ending_db(reasonable_ends))
