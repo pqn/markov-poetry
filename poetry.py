@@ -2,6 +2,8 @@ import nltk, re, random
 from collections import defaultdict, Counter
 from bisect import bisect
 
+nltk.data.path.append('./nltk_data/')
+
 ACCEPTABLE_POS = frozenset(["NOUN", "ADJ", "ADV", "VERB"])
 VOWELS = frozenset("AA AE AH AO AW AY EH ER EY IH IY OW OY UH UW".split(" "))
 syllable_db = {thing[0] : thing[1] for thing in nltk.corpus.cmudict.entries()}
