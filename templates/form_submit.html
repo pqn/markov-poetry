@@ -6,7 +6,7 @@
     <body>
         <div id="container">
             <div id="content" style="align:center">
-                <form method="post" action="{{ url_for('hello') }}">
+                <form method="get" action="{{ url_for('poem') }}" style="text-align:center">
                   <select type="text" name="txt">
                         <option value="0">Amendments</option>
                         <option value="1">Moby Dick</option>
@@ -14,7 +14,9 @@
                         <option value="3">The Beatles</option>
                         <option value="4">The Bible</option>
                   </select>
-                  <input style="float:right;" type="submit" />
+				  <br/>
+				  <br/>
+                  <input type="submit" />
                 </form>
             </div>
     </body>
