@@ -1,7 +1,5 @@
-import nltk
-import re
+import nltk, re, random
 from collections import defaultdict, Counter
-import random
 from bisect import bisect
 
 ACCEPTABLE_POS = frozenset(["NOUN", "ADJ", "ADV", "VERB"])
@@ -9,10 +7,9 @@ VOWELS = frozenset("AA AE AH AO AW AY EH ER EY IH IY OW OY UH UW".split(" "))
 syllable_db = {thing[0] : thing[1] for thing in nltk.corpus.cmudict.entries()}
 
 def triples(word_list):
-    if len(word_list) < 3:
-        return
-    for i in range(len(word_list) - 2):
-        yield (word_list[i], word_list[i+1], word_list[i+2])
+    if len(word_list) >= 3:
+        for i in range(len(word_list) - 2):
+            yield (word_list[i], word_list[i+1], word_list[i+2])
 
 def markov(triples_list):
     chain = defaultdict(Counter)
@@ -91,6 +88,7 @@ def markov_poem(text):
     endings = ending_db(reasonable_ends)
     return "\n".join([punctuate(generate_line_pair(final_chain, endings, 10, second_words)) for x in range(5)])
 
-with open("moby_dick.txt") as f:
-    text = f.read()
-    print(markov_poem(text))
+if __name__ == "__main__":
+    with open("moby_dick.txt") as f:
+        text = f.read()
+        print(markov_poem(text))
