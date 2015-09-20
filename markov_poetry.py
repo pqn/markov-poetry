@@ -6,6 +6,7 @@ from bisect import bisect
 
 ACCEPTABLE_POS = frozenset(["NOUN", "ADJ", "ADV", "VERB"])
 VOWELS = frozenset("AA AE AH AO AW AY EH ER EY IH IY OW OY UH UW".split(" "))
+syllable_db = nltk.corpus.cmudict.entries()
 
 def triples(word_list):
     if len(word_list) < 3:
@@ -21,6 +22,7 @@ def markov(triples_list):
 
 def finalize_markov(markov_dict):
     final_chain = dict()
+    second_words = defaultdict(set)
     for pair, third_word_dict in markov_dict.items():
         values = []
         total = 0
@@ -28,7 +30,8 @@ def finalize_markov(markov_dict):
             total += value
             values.append(total)
         final_chain[pair] = (values, list(third_word_dict.keys()))
-    return final_chain
+        second_words[pair[0]].add(pair[1])
+    return final_chain, second_words
     
 def getWords(text):
     return re.compile('[\w\']+').findall(text)
@@ -38,14 +41,16 @@ def weighted_rand_choice(A):
     i = bisect(cum_values, random.random() * cum_values[-1])
     return choices[i]
 
-def generate(final_chain, num_words):
-    seed = list(random.choice(list(final_chain.keys())))
+def generate(final_chain, num_words, word=None, second_words=None):
+    if word is None:
+        seed = list(random.choice(list(final_chain.keys())))
+    else:
+        seed = [word, random.choice(list(second_words[word]))]
     for x in range(num_words - 2):
         seed.append(weighted_rand_choice(final_chain.get((seed[-2], seed[-1]), random.choice(list(final_chain.values())))))
     return seed
 
 def ending_db(reasonable_ends):
-    syllable_db = nltk.corpus.cmudict.entries()
     syllable_lookup = defaultdict(set)
     for entry in syllable_db:
         if entry[0] in reasonable_ends:
@@ -57,15 +62,34 @@ def ending_db(reasonable_ends):
                 syllable_lookup[(entry[1][-3][:2], entry[1][-2][:2], entry[1][-1][:2])].add(entry[0])
     return {key: syllable_lookup[key] for key in syllable_lookup.keys() if len(syllable_lookup[key]) >= 2}
 
-def generate_line_pair(final_chain, num_words):
-    pass # TODO
+def generate_line_pair(final_chain, endings, num_words, second_words):
+    pair = random.sample(endings[random.choice(list(endings.keys()))], 2)
+    result1 = generate(final_chain, 10, word=pair[0], second_words=second_words)
+    result1.reverse()
+    result2 = generate(final_chain, 10, word=pair[1], second_words=second_words)
+    result2.reverse()
+    return [result1, result2]
 
-with open("moby_dick.txt") as f:
-    text = f.read()
+def punctuate(lines):
+    if random.random() < 0.2:
+        first = "-"
+        second = "?"
+    elif random.random() < 0.4:
+        first = ","
+        second = "!"
+    else:
+        first = ","
+        second = "."
+    return " ".join(lines[0]).capitalize() + first + "\n" + " ".join(lines[1]).capitalize() + second + "\n"
+
+def markov_poem(text):
     words = [x.lower() for x in getWords(text)]
     reasonable_ends = frozenset([thing[0] for thing in nltk.pos_tag(list(set(words)), tagset="universal") if thing[1] in ACCEPTABLE_POS])
     words.reverse()
-    result = generate(finalize_markov(markov(triples(words))), 100)
-    result.reverse()
-    #print(result)
-    print(ending_db(reasonable_ends))
+    (final_chain, second_words) = finalize_markov(markov(triples(words)))
+    endings = ending_db(reasonable_ends)
+    return "\n".join([punctuate(generate_line_pair(final_chain, endings, 10, second_words)) for x in range(5)])
+
+with open("moby_dick.txt") as f:
+    text = f.read()
+    print(markov_poem(text))
