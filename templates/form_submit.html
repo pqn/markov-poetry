@@ -1,12 +1,25 @@
 <html>
     <head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script type="text/javascript">
+		$(document).ready(function() {
+			$("#sub").click(function() {
+				$("#resp").html("<i>Loading...</i>")
+				$.post('/poem2', {
+					txt: $('select[name="txt"]').val()
+				}, function(data) {
+					$("#resp").html(data.resp.replace(/\n/g,"<br/>"))
+				})
+			})
+		})
+		</script>
         <title>Handle POST requests with Flask</title>
         <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body>
         <div id="container">
             <div id="content" style="align:center">
-                <form method="get" action="{{ url_for('poem') }}" style="text-align:center">
+                <form action="javascript:void(0);" style="text-align:center">
                   <select type="text" name="txt">
                         <option value="0">Amendments</option>
                         <option value="1">Moby Dick</option>
@@ -16,8 +29,10 @@
                   </select>
 				  <br/>
 				  <br/>
-                  <input type="submit" />
+                  <input type="submit" id="sub"/>
                 </form>
+				<div id="resp" style="text-align:center">
+				</div>
             </div>
     </body>
 </html>
